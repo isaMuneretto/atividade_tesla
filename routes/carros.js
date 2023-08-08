@@ -7,25 +7,34 @@ sequelize.sync();
 
 //GET Retorna tarefas com paginação e ordenação
 router.get('/', async (req, res) => {
+    const {page = 1 , limit = 10} = req.query;
     try {
-        const carros = await sequelize.query(
-            "SELECT carros.*, autores.nome AS autor, editoras.nome AS editora FROM carros JOIN autores ON carros.autor_id = autores.id JOIN editoras ON carros.editora_id = editoras.id ORDER BY carros.id DESC",
-            { type: QueryTypes.SELECT }
+        const [results, metadata] = await sequelize.query(
+            `SELECT * FROM carros ORDER BY updatedAt DESC LIMIT :limit OFFSET :offset`,
+            { 
+                replacements: { limit: limit, offset: (page - 1) * limit },
+                type: sequelize.QueryTypes.SELECT
+            }
         );
-        res.status(200).json(carros);
-    } catch (err) {
-        res.status(400).json({ message: err.message });
+        res.json({
+            tasks: results,
+        });
+    } catch (error) {
+        res.status(500).json({
+            sucess: false,
+            message: error.message,
+        });
     }
 });
 
-/* //GET Consulta uma tarefa pelo ID
-router.get('/tasks/:id', async (req, res) => {
+//GET Consulta uma tarefa pelo ID
+router.get('/:id', async (req, res) => {
     try {
-        const [results, metadata] = await db.query(
-            `SELECT * FROM tasks WHERE id = :id`,
+        const [results, metadata] = await sequelize.query(
+            `SELECT * FROM carros WHERE id = :id`,
             { 
                 replacements: { id: req.params.id },
-                type: db.QueryTypes.SELECT 
+                type: sequelize.QueryTypes.SELECT 
             }
         );
         if (results.length === 0){
@@ -36,7 +45,7 @@ router.get('/tasks/:id', async (req, res) => {
         } else {
             res.json({
                 sucess: true,
-                task: results, //tirei o [0] após results pois não aparecia o id lá no postman
+                task: results, 
             });
         }
     } catch (error) {
@@ -45,44 +54,26 @@ router.get('/tasks/:id', async (req, res) => {
             message: error.message,
         });
     }
-}); */
-
- // Método POST para cadastrar um livro
-router.post('/', async (req, res) => {
-    const { modelo, preco, caracteristicas } = req.body;
-
-    if (!modelo || !preco || !caracteristicas) {
-        return res.status(400).json({ message: 'Preencha todos os campos' });
-    }
-
-    try {
-        await sequelize.query(
-            "INSERT INTO carros (modelo, preco, caracteristicas, createdAt, updatedAt) VALUES (?, ?, ?)",
-            {
-                 replacements: [modelo, preco, caracteristicas] ,
-                type: QueryTypes.INSERT
-            }
-        );
-        res.status(201).json({ message: 'Carro criado com sucesso.' });
-    } catch (error) {
-        res.status(400).json({ message: error.message });
-    }
 });
 
-// Filtro por título ou autor
-router.get("/filtro/:palavra", async (req, res) => {
-    const { palavra } = req.params;
+ // Método POST para cadastrar um livro
+ router.post('/', async (req, res) => {
     try {
-        const carros = await sequelize.query(
-            `SELECT carros.*, autores.nome AS autor, editoras.nome AS editora FROM carros JOIN autores ON carros.autor_id = autores.id JOIN editoras ON carros.editora_id = editoras.id WHERE carros.titulo LIKE ? OR autores.nome LIKE ?`,
-            {
-                replacements: [`%${palavra}%`, `%${palavra}%`],
-                type: QueryTypes.SELECT
-            }
-        );
-        res.status(200).json(carros);
+        const query = `INSERT INTO carros (modelo, preco, caracteristicas, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)`;
+        const replacements = [req.body.modelo, req.body.preco, req.body.caracteristicas, new Date(), new Date()];
+
+        const [results, metadata] = await sequelize.query(query, { replacements });
+
+        res.status(201).json({
+            success: true,
+            message: "Tarefa criada com sucesso",
+            results: results,
+        });
     } catch (error) {
-        res.status(400).json({ message: error.message });
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
     }
 });
 
