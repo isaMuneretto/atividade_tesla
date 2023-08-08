@@ -8,14 +8,14 @@ const Inventario = db.define('Inventario', {
         primaryKey: true,
         autoIncrement: true
     },
+    quantidade: {
+        type: Sequelize.INTEGER,
+        allowNull: false,
+    },
     carroId: {
         type: Sequelize.INTEGER,
         allowNull: false,
     },
-    quantidade: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-    }
 }, {});
 
 Inventario.belongsTo(Carro, { foreignKey: 'carroId' });

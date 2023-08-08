@@ -2,7 +2,9 @@ const express = require('express');
 const router = express.Router();
 const { QueryTypes } = require('sequelize');
 const sequelize = require("../sequelize"); 
-const Carro = require('../model/carro'); 
+const Pedidos = require('../model/pedido'); 
+const Cliente = require('../model/cliente');
+const Carro = require('../model/carro');
 sequelize.sync();
 
 //GET Retorna tarefas com paginação e ordenação
@@ -10,14 +12,17 @@ router.get('/', async (req, res) => {
     const {page = 1 , limit = 10} = req.query;
     try {
         const [results, metadata] = await sequelize.query(
-            `SELECT * FROM carros ORDER BY updatedAt DESC LIMIT :limit OFFSET :offset`,
+            `SELECT pedidos.*, clientes.*, carros.* FROM pedidos 
+            INNER JOIN clientes ON pedidos.clienteId = clientes.id
+            INNER JOIN carros ON pedidos.carroId = carros.id
+            ORDER BY pedidos.updatedAt DESC LIMIT :limit OFFSET :offset`,
             { 
                 replacements: { limit: limit, offset: (page - 1) * limit },
                 type: sequelize.QueryTypes.SELECT
             }
         );
         res.json({
-            tasks: results,
+            pedidos: results,
         });
     } catch (error) {
         res.status(500).json({
@@ -27,11 +32,34 @@ router.get('/', async (req, res) => {
     }
 });
 
-//GET Consulta uma tarefa pelo ID
+// GET para encontrar todos os pedidos feitos por um cliente específico
+router.get('/cliente/:clienteId', async (req, res) => {
+    const clienteId = req.params.clienteId;
+
+    try {
+        const query = "SELECT * FROM pedidos WHERE clienteId = ?";
+        const results = await sequelize.query(query, {
+            replacements: [clienteId],
+            type: QueryTypes.SELECT
+        });
+
+        res.json({
+            success: true,
+            pedidos: results,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+});
+
+//GET Consulta um pedido pelo ID
 router.get('/:id', async (req, res) => {
     try {
         const [results, metadata] = await sequelize.query(
-            `SELECT * FROM carros WHERE id = :id`,
+            `SELECT * FROM pedidos WHERE id = :id`,
             { 
                 replacements: { id: req.params.id },
                 type: sequelize.QueryTypes.SELECT 
@@ -40,12 +68,12 @@ router.get('/:id', async (req, res) => {
         if (results.length === 0){
             res.status(404).json({
                 sucess: false,
-                message:"tarefa não encontrada",
+                message:"pedido não encontrado",
             });
         } else {
             res.json({
                 sucess: true,
-                task: results, 
+                pedidos: results, 
             });
         }
     } catch (error) {
@@ -59,8 +87,8 @@ router.get('/:id', async (req, res) => {
  // Método POST para cadastrar um livro
  router.post('/', async (req, res) => {
     try {
-        const query = `INSERT INTO carros (modelo, preco, caracteristicas, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)`;
-        const replacements = [req.body.modelo, req.body.preco, req.body.caracteristicas, new Date(), new Date()];
+        const query = `INSERT INTO pedidos (clienteId, carroId, dataPedido, statusPedido, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)`;
+        const replacements = [req.body.clienteId, req.body.carroId, req.body.dataPedido, req.body.statusPedido, new Date(), new Date()];
 
         const [results, metadata] = await sequelize.query(query, { replacements });
 
@@ -80,11 +108,11 @@ router.get('/:id', async (req, res) => {
 //método PUT para atualizar um livro, o id indica o registro a ser alterado
 router.put('/:id', async(req, res) => {
     const id = req.params.id; //pega o id enviado pela requisição
-    const { preco } = req.body; //campo a ser alterado
+    const { statusPedido } = req.body; //campo a ser alterado
     try{
         //altera o campo preco, no registro onde o id coincidir com o id enviado
-        await sequelize.query("UPDATE carros SET preco = ? WHERE id = ?", { replacements: [preco, id], type: QueryTypes.UPDATE });
-        res.status(200).json({ message: 'Carro atualizado com sucesso.' }); //statusCode indica ok no update
+        await sequelize.query("UPDATE pedidos SET statusPedido = ? WHERE id = ?", { replacements: [statusPedido, id], type: QueryTypes.UPDATE });
+        res.status(200).json({ message: 'Pedido atualizado com sucesso.' }); //statusCode indica ok no update
     }catch(error){
         res.status(400).json({msg:error.message}); //retorna status de erro e mensagens
     }
@@ -94,7 +122,7 @@ router.put('/:id', async(req, res) => {
 router.delete('/:id', async(req, res) => {
     const {id} = req.params; //pega o id enviado pela requisição para ser excluído
     try{
-        await sequelize.query("DELETE FROM carros WHERE id = ?", { replacements: [id], type: QueryTypes.DELETE });
+        await sequelize.query("DELETE FROM pedidos WHERE id = ?", { replacements: [id], type: QueryTypes.DELETE });
         res.status(200).json({ message: 'Carro deletado com sucesso.' }); //statusCode indica ok no delete
     }catch(error){
         res.status(400).json({msg:error.message}); //retorna status de erro e mensagens

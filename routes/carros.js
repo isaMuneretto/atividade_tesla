@@ -3,21 +3,49 @@ const router = express.Router();
 const { QueryTypes } = require('sequelize');
 const sequelize = require("../sequelize"); 
 const Carro = require('../model/carro'); 
+const Pedidos = require('../model/pedido'); 
 sequelize.sync();
 
-//GET Retorna tarefas com paginação e ordenação
+//GET Retorna carros com status do pedido
 router.get('/', async (req, res) => {
     const {page = 1 , limit = 10} = req.query;
     try {
         const [results, metadata] = await sequelize.query(
-            `SELECT * FROM carros ORDER BY updatedAt DESC LIMIT :limit OFFSET :offset`,
+            `SELECT carros.*, pedidos.statusPedido FROM carros 
+            INNER JOIN pedidos ON carros.id = pedidos.carroId
+            ORDER BY carros.updatedAt DESC LIMIT :limit OFFSET :offset`,
             { 
                 replacements: { limit: limit, offset: (page - 1) * limit },
                 type: sequelize.QueryTypes.SELECT
             }
         );
         res.json({
-            tasks: results,
+            carros: results,
+        });
+    } catch (error) {
+        res.status(500).json({
+            sucess: false,
+            message: error.message,
+        });
+    }
+});
+
+//lista os carros disponiveis no inventario
+router.get('/disponiveis', async (req, res) => {
+    const {page = 1 , limit = 10} = req.query;
+    try {
+        const [results, metadata] = await sequelize.query( //lista somente o ultimo inserido(VER)
+            `SELECT * FROM carros 
+            INNER JOIN inventarios ON inventarios.carroId = carros.id
+            WHERE inventarios.quantidade > 0
+            ORDER BY carros.updatedAt DESC LIMIT :limit OFFSET :offset`,
+            { 
+                replacements: { limit: limit, offset: (page - 1) * limit },
+                type: sequelize.QueryTypes.SELECT
+            }
+        );
+        res.json({
+            carros: results,
         });
     } catch (error) {
         res.status(500).json({
