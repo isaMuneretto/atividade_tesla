@@ -6,7 +6,7 @@ const Inventario = require('../model/inventario');
 const Carro = require('../model/carro'); 
 sequelize.sync();
 
-//GET Retorna tarefas com paginação e ordenação
+//GET Mostrar o inventário junto com os detalhes do carro.
 router.get('/', async (req, res) => {
     const {page = 1 , limit = 10} = req.query;
     try {
@@ -30,7 +30,7 @@ router.get('/', async (req, res) => {
     }
 });
 
-//GET Consulta uma tarefa pelo ID
+//GET Consulta  pelo ID
 router.get('/:id', async (req, res) => {
     try {
         const [results, metadata] = await sequelize.query(
@@ -80,7 +80,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-//método PUT para atualizar um livro, o id indica o registro a ser alterado
+//método PUT para atualizar um inventário, o id indica o registro a ser alterado
 router.put('/:carroId', async(req, res) => {
     const carroId = req.params.carroId;
     const { quantidade } = req.body;

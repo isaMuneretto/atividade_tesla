@@ -111,7 +111,7 @@ router.put('/:id', async(req, res) => {
     }
 });
 
-//método DELETE para deletar um carro
+//Deletar um cliente que deseja ser removido do banco de dados.
 router.delete('/:id', async(req, res) => {
     const {id} = req.params; //pega o id enviado pela requisição para ser excluído
     try{

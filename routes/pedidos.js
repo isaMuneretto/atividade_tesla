@@ -7,7 +7,7 @@ const Cliente = require('../model/cliente');
 const Carro = require('../model/carro');
 sequelize.sync();
 
-//GET Retorna tarefas com paginação e ordenação
+//GET Listar todos os pedidos junto com informações do cliente e detalhes do carro.
 router.get('/', async (req, res) => {
     const {page = 1 , limit = 10} = req.query;
     try {
@@ -59,7 +59,7 @@ router.get('/cliente/:clienteId', async (req, res) => {
 router.get('/:id', async (req, res) => {
     try {
         const [results, metadata] = await sequelize.query(
-            `SELECT * FROM pedidos WHERE id = :id`,
+            `SELECT * FROM pedidos WHERE id = ?`,
             { 
                 replacements: { id: req.params.id },
                 type: sequelize.QueryTypes.SELECT 
@@ -84,6 +84,35 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+router.get('/pedidos/total', async (req, res) => {
+    try {
+        const query = `
+            SELECT 
+                carros.modelo,
+                COUNT(pedidos.carroId) AS total_vendas
+            FROM 
+                pedidos
+                JOIN carros ON pedidos.carroId = carros.id
+            GROUP BY
+                carros.modelo
+        `;
+
+        const results = await sequelize.query(query, { type: QueryTypes.SELECT });
+
+        res.json({
+            success: true,
+            total: results,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+});
+
+
+
  // Método POST para cadastrar um livro
  router.post('/', async (req, res) => {
     try {
@@ -105,7 +134,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
-//método PUT para atualizar um livro, o id indica o registro a ser alterado
+//tualizar o status de um pedido específico.
 router.put('/:id', async(req, res) => {
     const id = req.params.id; //pega o id enviado pela requisição
     const { statusPedido } = req.body; //campo a ser alterado

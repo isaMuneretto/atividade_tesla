@@ -55,7 +55,7 @@ router.get('/disponiveis', async (req, res) => {
     }
 });
 
-//GET Consulta uma tarefa pelo ID
+//GET Consulta pelo ID
 router.get('/:id', async (req, res) => {
     try {
         const [results, metadata] = await sequelize.query(
@@ -83,6 +83,7 @@ router.get('/:id', async (req, res) => {
         });
     }
 });
+
 
  // Método POST para cadastrar um livro
  router.post('/', async (req, res) => {
