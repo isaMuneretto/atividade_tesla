@@ -111,7 +111,27 @@ router.get('/pedidos/total', async (req, res) => {
     }
 });
 
+// Rota para criar a visão
+router.get('/visao/detalhesPedidos', async (req, res) => {
+    try {
+        const query = `SELECT pedidos.*, clientes.nome, clientes.email, carros.modelo, carros.preco
+            FROM pedidos
+            JOIN clientes ON pedidos.clienteId = clientes.id
+            JOIN carros ON pedidos.carroId = carros.id`;
 
+        const results = await sequelize.query(query, { type: QueryTypes.SELECT });
+
+        res.json({
+            success: true,
+            detalhesPedidos: results,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+});
 
  // Método POST para cadastrar um livro
  router.post('/', async (req, res) => {

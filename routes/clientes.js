@@ -77,6 +77,34 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+router.get('/cliente/clienteMaior', async (req, res) => {
+    try {
+        const query = `SELECT clienteId, COUNT(*) AS quantidade_carros_comprados
+        FROM pedidos
+        GROUP BY clienteId
+        HAVING COUNT(*) = (
+            SELECT MAX(total_carros)
+            FROM (
+                SELECT COUNT(*) AS total_carros
+                FROM pedidos
+                GROUP BY clienteId
+            ) AS carros_por_cliente
+        )`;
+
+        const results = await sequelize.query(query, { type: QueryTypes.SELECT });
+
+        res.json({
+            success: true,
+            clienteMaior: results,
+        });
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message,
+        });
+    }
+});
+
  // Método POST para cadastrar um livro
  router.post('/', async (req, res) => {
     try {
