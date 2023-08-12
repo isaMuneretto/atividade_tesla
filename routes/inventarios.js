@@ -59,7 +59,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
- // Método POST para cadastrar um livro
+ // Método POST para cadastrar
  router.post('/', async (req, res) => {
     try {
         const query = `INSERT INTO inventarios ( quantidade, carroId, createdAt, updatedAt) VALUES (?, ?, ?, ?)`;
@@ -69,7 +69,7 @@ router.get('/:id', async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Tarefa criada com sucesso",
+            message: "Inventário criada com sucesso",
             results: results,
         });
     } catch (error) {
@@ -86,7 +86,7 @@ router.put('/:carroId', async(req, res) => {
     const { quantidade } = req.body;
 
     try{
-        //altera o campo preco, no registro onde o id coincidir com o id enviado
+        //altera o campo quantidade no registro onde o id coincidir com o id enviado
         await sequelize.query("UPDATE inventarios SET quantidade = ? WHERE carroId = ?", { replacements: [quantidade, carroId], type: QueryTypes.UPDATE });
         res.status(200).json({ message: 'Quantidade do inventário atualizado com sucesso.' }); //statusCode indica ok no update
     }catch(error){
@@ -94,7 +94,7 @@ router.put('/:carroId', async(req, res) => {
     }
 });
 
-//método DELETE para deletar um carro
+//método DELETE para deletar um inventário
 router.delete('/:id', async(req, res) => {
     const {id} = req.params; //pega o id enviado pela requisição para ser excluído
     try{
