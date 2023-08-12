@@ -84,6 +84,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+//Calcular o total de vendas por modelo de carro
 router.get('/pedidos/total', async (req, res) => {
     try {
         const query = `
@@ -133,7 +134,7 @@ router.get('/visao/detalhesPedidos', async (req, res) => {
     }
 });
 
- // Método POST para cadastrar um livro
+ // Método POST para cadastrar
  router.post('/', async (req, res) => {
     try {
         const query = `INSERT INTO pedidos (clienteId, carroId, dataPedido, statusPedido, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)`;
@@ -143,7 +144,7 @@ router.get('/visao/detalhesPedidos', async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Tarefa criada com sucesso",
+            message: "Pedido criado com sucesso",
             results: results,
         });
     } catch (error) {
@@ -154,12 +155,12 @@ router.get('/visao/detalhesPedidos', async (req, res) => {
     }
 });
 
-//tualizar o status de um pedido específico.
+//Atualizar o status de um pedido específico
 router.put('/:id', async(req, res) => {
     const id = req.params.id; //pega o id enviado pela requisição
     const { statusPedido } = req.body; //campo a ser alterado
     try{
-        //altera o campo preco, no registro onde o id coincidir com o id enviado
+        //altera o campo status do pedido no registro onde o id coincidir com o id enviado
         await sequelize.query("UPDATE pedidos SET statusPedido = ? WHERE id = ?", { replacements: [statusPedido, id], type: QueryTypes.UPDATE });
         res.status(200).json({ message: 'Pedido atualizado com sucesso.' }); //statusCode indica ok no update
     }catch(error){
@@ -167,12 +168,12 @@ router.put('/:id', async(req, res) => {
     }
 });
 
-//método DELETE para deletar um carro
+//método DELETE para deletar um pedido
 router.delete('/:id', async(req, res) => {
     const {id} = req.params; //pega o id enviado pela requisição para ser excluído
     try{
         await sequelize.query("DELETE FROM pedidos WHERE id = ?", { replacements: [id], type: QueryTypes.DELETE });
-        res.status(200).json({ message: 'Carro deletado com sucesso.' }); //statusCode indica ok no delete
+        res.status(200).json({ message: 'Pedido deletado com sucesso.' }); //statusCode indica ok no delete
     }catch(error){
         res.status(400).json({msg:error.message}); //retorna status de erro e mensagens
     }
