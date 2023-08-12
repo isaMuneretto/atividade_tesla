@@ -78,6 +78,7 @@ router.get('/:id', async (req, res) => {
 });
 
 
+//Encontrar o cliente que comprou a maior quantidade de carros.
 router.get('/cliente/clienteMaior', async (req, res) => {
     try {
         const query = `SELECT clienteId, COUNT(*) AS quantidade_carros_comprados
@@ -106,7 +107,7 @@ router.get('/cliente/clienteMaior', async (req, res) => {
     }
 });
 
- // Método POST para cadastrar 
+ // Método POST para cadastrar um livro
  router.post('/', async (req, res) => {
     try {
         const query = `INSERT INTO clientes (nome, email, telefone, endereco, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)`;
@@ -116,7 +117,7 @@ router.get('/cliente/clienteMaior', async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Tarefa criada com sucesso",
+            message: "cliente criado com sucesso",
             results: results,
         });
     } catch (error) {
@@ -127,7 +128,7 @@ router.get('/cliente/clienteMaior', async (req, res) => {
     }
 });
 
-//método PUT para atualizar um livro, o id indica o registro a ser alterado
+//método PUT para atualizar, o id indica o registro a ser alterado
 router.put('/:id', async(req, res) => {
     const id = req.params.id; //pega o id enviado pela requisição
     const { telefone } = req.body; //campo a ser alterado

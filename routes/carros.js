@@ -104,7 +104,7 @@ router.get('/media/mediaCarros', async (req, res) => {
     }
 });
 
-// Método POST para cadastrar um livro
+// Método POST para cadastrar 
 router.post('/', async (req, res) => {
     try {
         const query = `INSERT INTO carros (modelo, preco, caracteristicas, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?)`;
@@ -114,7 +114,7 @@ router.post('/', async (req, res) => {
 
         res.status(201).json({
             success: true,
-            message: "Tarefa criada com sucesso",
+            message: "Carro criado com sucesso",
             results: results,
         });
     } catch (error) {
@@ -125,7 +125,7 @@ router.post('/', async (req, res) => {
     }
 });
 
-//método PUT para atualizar um livro, o id indica o registro a ser alterado
+//método PUT para atualizar, o id indica o registro a ser alterado
 router.put('/:id', async (req, res) => {
     const id = req.params.id; //pega o id enviado pela requisição
     const { preco } = req.body; //campo a ser alterado
