@@ -77,6 +77,7 @@ router.get('/:id', async (req, res) => {
     }
 });
 
+
 router.get('/cliente/clienteMaior', async (req, res) => {
     try {
         const query = `SELECT clienteId, COUNT(*) AS quantidade_carros_comprados
@@ -105,7 +106,7 @@ router.get('/cliente/clienteMaior', async (req, res) => {
     }
 });
 
- // Método POST para cadastrar um livro
+ // Método POST para cadastrar 
  router.post('/', async (req, res) => {
     try {
         const query = `INSERT INTO clientes (nome, email, telefone, endereco, createdAt, updatedAt) VALUES (?, ?, ?, ?, ?, ?)`;
